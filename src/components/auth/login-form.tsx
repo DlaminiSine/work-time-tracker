@@ -11,6 +11,7 @@ import { FieldMessage } from "@/components/ui/form-message";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { initialAuthActionState } from "@/lib/auth/action-state";
+import { signInValuesToFormData } from "@/lib/auth/form-data";
 import { signInSchema, type SignInValues } from "@/lib/validations/auth";
 
 export function LoginForm({ isConfigured }: { isConfigured: boolean }) {
@@ -23,17 +24,9 @@ export function LoginForm({ isConfigured }: { isConfigured: boolean }) {
     },
   });
 
-  function submitValidForm(_values: SignInValues, event?: React.BaseSyntheticEvent) {
-    const formElement = event?.currentTarget;
-
-    if (!(formElement instanceof HTMLFormElement)) {
-      return;
-    }
-
-    const formData = new FormData(formElement);
-
+  function submitValidForm(values: SignInValues) {
     React.startTransition(() => {
-      formAction(formData);
+      formAction(signInValuesToFormData(values));
     });
   }
 

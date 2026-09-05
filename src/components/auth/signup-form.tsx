@@ -10,6 +10,7 @@ import { FieldMessage } from "@/components/ui/form-message";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { initialAuthActionState } from "@/lib/auth/action-state";
+import { signUpValuesToFormData } from "@/lib/auth/form-data";
 import { signUpSchema, type SignUpValues } from "@/lib/validations/auth";
 
 export function SignupForm({ isConfigured }: { isConfigured: boolean }) {
@@ -23,17 +24,9 @@ export function SignupForm({ isConfigured }: { isConfigured: boolean }) {
     },
   });
 
-  function submitValidForm(_values: SignUpValues, event?: React.BaseSyntheticEvent) {
-    const formElement = event?.currentTarget;
-
-    if (!(formElement instanceof HTMLFormElement)) {
-      return;
-    }
-
-    const formData = new FormData(formElement);
-
+  function submitValidForm(values: SignUpValues) {
     React.startTransition(() => {
-      formAction(formData);
+      formAction(signUpValuesToFormData(values));
     });
   }
 

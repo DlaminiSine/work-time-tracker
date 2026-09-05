@@ -10,6 +10,7 @@ import { FieldMessage } from "@/components/ui/form-message";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { initialAuthActionState } from "@/lib/auth/action-state";
+import { forgotPasswordValuesToFormData } from "@/lib/auth/form-data";
 import { forgotPasswordSchema, type ForgotPasswordValues } from "@/lib/validations/auth";
 
 export function ForgotPasswordForm({ isConfigured }: { isConfigured: boolean }) {
@@ -21,17 +22,9 @@ export function ForgotPasswordForm({ isConfigured }: { isConfigured: boolean }) 
     },
   });
 
-  function submitValidForm(_values: ForgotPasswordValues, event?: React.BaseSyntheticEvent) {
-    const formElement = event?.currentTarget;
-
-    if (!(formElement instanceof HTMLFormElement)) {
-      return;
-    }
-
-    const formData = new FormData(formElement);
-
+  function submitValidForm(values: ForgotPasswordValues) {
     React.startTransition(() => {
-      formAction(formData);
+      formAction(forgotPasswordValuesToFormData(values));
     });
   }
 
