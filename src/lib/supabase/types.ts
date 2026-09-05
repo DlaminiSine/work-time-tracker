@@ -35,6 +35,7 @@ export interface Database {
           default_currency?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       companies: {
         Row: {
@@ -64,6 +65,7 @@ export interface Database {
           is_archived?: boolean;
           updated_at?: string;
         };
+        Relationships: [];
       };
       projects: {
         Row: {
@@ -105,6 +107,15 @@ export interface Database {
           is_archived?: boolean;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: "projects_company_id_fkey";
+            columns: ["company_id"];
+            isOneToOne: false;
+            referencedRelation: "companies";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       work_sessions: {
         Row: {
@@ -137,6 +148,15 @@ export interface Database {
           clock_out?: string | null;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: "work_sessions_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
     Views: Record<string, never>;

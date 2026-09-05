@@ -4,11 +4,11 @@ Clockwise is a production-oriented personal time-tracking application for record
 
 User -> Company -> Project -> Work Session
 
-Phase 1 establishes the app foundation: Next.js App Router, strict TypeScript, Tailwind CSS, shadcn/ui-compatible primitives, Supabase Auth, PostgreSQL migrations, Row Level Security, protected routes, a responsive application shell, PWA metadata, and a tested time-calculation utility.
+Phase 2 establishes the core management layer on top of the Phase 1 foundation: timezone-aware reporting utilities, company CRUD, project CRUD, archive/restore flows, and reusable timer selector data access.
 
 ## Features
 
-Implemented in Phase 1:
+Implemented through Phase 2:
 
 - Sign up, login, logout, and forgot-password flows through Supabase Auth.
 - Persistent session refresh through Next.js middleware.
@@ -20,13 +20,16 @@ Implemented in Phase 1:
 - A partial unique PostgreSQL index that allows only one active work session per user.
 - TypeScript database entity types matching the migration.
 - PWA manifest and mobile metadata.
-- Unit tests for duration, active elapsed time, midnight splitting, weekly/monthly ranges, decimal hours, earnings, and formatting.
+- Timezone-aware reporting ranges using the user's configured profile timezone.
+- Company management with create, edit, archive, restore, active lists, and optional archived visibility.
+- Project management with create, edit, archive, restore, company filtering, weekly targets, hourly rates, currencies, and optional archived visibility.
+- Reusable active company -> active project query for the upcoming Timer selectors.
+- Unit tests for duration, active elapsed time, timezone boundaries, DST behavior, validation, weekly targets, decimal hours, earnings, and formatting.
 
 Planned next:
 
-- Company and project CRUD.
-- Clock-in, active timer, clock-out, and summaries.
-- History editing, manual sessions, filters, reports, charts, CSV export, and settings.
+- Phase 3: clock-in, active timer, clock-out, timer persistence across refresh, and today's totals.
+- Later phases: History editing, manual sessions, filters, reports, charts, CSV export, and full settings editing.
 
 ## Tech Stack
 
@@ -40,6 +43,7 @@ Planned next:
 - React Hook Form
 - Zod
 - date-fns
+- date-fns-tz
 - Recharts
 - Vitest
 - Vercel-compatible deployment
@@ -49,20 +53,24 @@ Planned next:
 The project keeps product logic out of route files:
 
 - `src/app` contains route groups for authentication and protected app screens.
-- `src/components` contains reusable UI, auth form, provider, and layout components.
+- `src/components` contains reusable UI, auth forms, management forms, provider, and layout components.
+- `src/lib/companies` contains company validation, queries, and server actions.
+- `src/lib/projects` contains project validation, queries, and server actions.
 - `src/lib/supabase` contains typed Supabase server helpers and database types.
 - `src/lib/validations` contains Zod schemas shared by forms and server actions.
-- `src/lib/time` contains calculation helpers and tests.
+- `src/lib/time` contains timezone-aware calculation helpers and tests.
+- `src/lib/timer` contains reusable timer preparation queries.
 - `supabase/migrations` contains database schema and security policy changes.
 
 Major decisions:
 
 - Supabase PostgreSQL is the source of truth. Work sessions are never stored in localStorage as authoritative data.
 - Durations are calculated from `clock_out - clock_in`; duration is not stored as authoritative database data.
-- Timestamps use `timestamptz`. PostgreSQL stores absolute instants, and later UI phases will render them in the profile timezone.
+- Timestamps use `timestamptz`. PostgreSQL stores absolute instants, while reporting boundaries are calculated in the user's profile timezone.
 - The one-active-session rule is enforced with a partial unique index on `work_sessions(user_id)` where `clock_out is null`.
 - The app renders an explicit setup state when Supabase environment variables are missing. This keeps local development runnable without faking backend behavior.
-- Midnight and range calculations are isolated in `src/lib/time/duration.ts` so timezone-aware reporting can evolve without spreading date logic across pages.
+- Midnight, day, week, and month calculations are isolated in `src/lib/time/duration.ts` and use `date-fns-tz` so daylight-saving changes are handled by IANA timezone data instead of hard-coded offsets.
+- Company and project writes go through server actions and reusable query modules. UI filters improve usability, but RLS and user-scoped queries remain the security boundary.
 - The `dev` and `build` scripts use Next's supported webpack flag because the current Turbopack path hit host-level port-binding restrictions during verification.
 
 ## Database Schema
@@ -203,7 +211,7 @@ Run unit tests:
 pnpm test
 ```
 
-Current tests focus on the date and duration helpers that reporting and timer pages will depend on.
+Current tests cover timezone-aware reporting boundaries, DST behavior, company validation, project validation, weekly target conversion, duration formatting, decimal-hour conversion, and earnings.
 
 ## Deployment To Vercel
 
@@ -225,19 +233,24 @@ Demo data should only be inserted manually in development accounts. Suggested ex
 - Companies: Northeastern University, Personal Projects.
 - Projects: Research Assistant, Portfolio Website, Premier League Analytics.
 
+## Current Status
+
+- Timezone-aware reporting utilities are implemented and tested.
+- Company CRUD and archive/restore are implemented.
+- Project CRUD, company filtering, weekly targets, hourly rates, currency defaults, and archive/restore are implemented.
+- The Timer page is prepared with an active company -> active project query, but timer writes are intentionally deferred to Phase 3.
+
 ## Known Limitations
 
-- Company and project CRUD are not implemented yet.
 - Timer write flows are not implemented yet.
 - Settings values are created with defaults and are not editable yet.
-- Timezone-aware display is not yet wired into UI rendering.
+- Timezone-aware helpers are ready, but full report pages are not built yet.
 - The PWA does not attempt offline work-session synchronization in V1.
 
 ## Future Improvements
 
-- Company/project archive management.
 - Active timer persistence with database-backed reconstruction after refresh.
 - Manual session creation and editing.
 - CSV export with safe escaping.
 - Recharts summaries for company, project, and day-level reporting.
-- Timezone adapter for local-day reporting beyond the current UTC utility layer.
+- Richer profile settings for timezone, clock format, week start, and default currency.

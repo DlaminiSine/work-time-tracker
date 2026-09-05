@@ -1,12 +1,31 @@
 import type { Metadata } from "next";
-import { Clock3, Database, ShieldCheck } from "lucide-react";
+import { redirect } from "next/navigation";
+import { Building2, Clock3, Database, FolderKanban, ShieldCheck } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { isSupabaseConfigured } from "@/lib/env";
+import { getCurrentUser } from "@/lib/supabase/auth";
+import { getActiveCompanyProjectOptions } from "@/lib/timer/options";
 
 export const metadata: Metadata = {
   title: "Timer",
 };
 
-export default function TimerPage() {
+export default async function TimerPage() {
+  let companyCount = 0;
+  let projectCount = 0;
+
+  if (isSupabaseConfigured()) {
+    const { user } = await getCurrentUser();
+
+    if (!user) {
+      redirect("/login");
+    }
+
+    const options = await getActiveCompanyProjectOptions(user.id);
+    companyCount = options.length;
+    projectCount = options.reduce((total, company) => total + company.projects.length, 0);
+  }
+
   return (
     <div className="space-y-6">
       <section className="space-y-2">
@@ -26,6 +45,30 @@ export default function TimerPage() {
           </CardHeader>
           <CardContent>
             <p className="text-4xl font-semibold">0h 00m</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Building2 className="size-4 text-primary" aria-hidden="true" />
+              Active companies
+            </CardTitle>
+            <CardDescription>Prepared for dependent selectors</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold">{companyCount}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FolderKanban className="size-4 text-primary" aria-hidden="true" />
+              Active projects
+            </CardTitle>
+            <CardDescription>Filtered by active company</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold">{projectCount}</p>
           </CardContent>
         </Card>
         <Card>
