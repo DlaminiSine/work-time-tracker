@@ -9,6 +9,7 @@ import {
   getMonthlyTotalMinutes,
   getWeekRange,
   getWeeklyTotalMinutes,
+  sessionOverlapsRange,
   splitSessionByDay,
   toDecimalHours,
 } from "@/lib/time/duration";
@@ -138,6 +139,33 @@ describe("duration helpers", () => {
     expect(range.end.toISOString()).toBe("2026-03-09T04:00:00.000Z");
     expect(getDailyTotalMinutes(sessions, "2026-03-08T12:00:00.000Z", newYork)).toBe(60);
     expect(splitSessionByDay(sessions[0], newYork)).toEqual([{ date: "2026-03-08", minutes: 60 }]);
+  });
+
+  it("matches the database overlap rule for completed and open sessions", () => {
+    const rangeStart = "2026-09-05T12:00:00.000Z";
+    const rangeEnd = "2026-09-05T16:00:00.000Z";
+
+    expect(
+      sessionOverlapsRange(
+        { clockIn: "2026-09-05T11:00:00.000Z", clockOut: "2026-09-05T12:00:00.000Z" },
+        rangeStart,
+        rangeEnd,
+      ),
+    ).toBe(false);
+    expect(
+      sessionOverlapsRange(
+        { clockIn: "2026-09-05T11:00:00.000Z", clockOut: "2026-09-05T12:01:00.000Z" },
+        rangeStart,
+        rangeEnd,
+      ),
+    ).toBe(true);
+    expect(
+      sessionOverlapsRange(
+        { clockIn: "2026-09-05T15:59:00.000Z", clockOut: null },
+        rangeStart,
+        rangeEnd,
+      ),
+    ).toBe(true);
   });
 
   it("converts minutes to decimal hours", () => {

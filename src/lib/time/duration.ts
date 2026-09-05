@@ -195,6 +195,19 @@ export function sumSessionMinutesInRange(
   }, 0);
 }
 
+export function sessionOverlapsRange(
+  session: SessionLike,
+  rangeStart: Date | string,
+  rangeEnd: Date | string,
+) {
+  const start = toDate(rangeStart).getTime();
+  const end = toDate(rangeEnd).getTime();
+  const sessionStart = toDate(session.clockIn).getTime();
+  const sessionEnd = session.clockOut ? toDate(session.clockOut).getTime() : Number.POSITIVE_INFINITY;
+
+  return sessionStart < end && sessionEnd > start;
+}
+
 export function getDailyTotalMinutes(sessions: SessionLike[], date: Date | string, timezone: string, now = new Date()) {
   const range = getDayRange(date, timezone);
   return sumSessionMinutesInRange(sessions, range.start, range.end, now);
