@@ -170,6 +170,8 @@ Real environment values should be supplied through one of these places:
 
 Do not commit real Supabase values to `.env.example` or any other tracked env file.
 
+When running in GitHub Codespaces, access the app through the forwarded `.app.github.dev` URL and keep real Supabase values in Codespaces secrets. Next.js Server Actions validate request origins, so `next.config.ts` explicitly allows `*.app.github.dev` alongside local development hosts instead of disabling the origin check.
+
 Run the development server:
 
 ```bash
