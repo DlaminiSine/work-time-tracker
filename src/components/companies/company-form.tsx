@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Save } from "lucide-react";
 import { createCompanyAction, updateCompanyAction } from "@/lib/companies/actions";
+import { companyValuesToFormData } from "@/lib/companies/form-data";
 import { companyColorDefault, companyFormSchema, type CompanyFormValues } from "@/lib/companies/validation";
 import { initialFormActionState } from "@/lib/forms/action-state";
 import { Button } from "@/components/ui/button";
@@ -33,17 +34,9 @@ export function CompanyForm({
     },
   });
 
-  function submitValidForm(_values: CompanyFormValues, event?: React.BaseSyntheticEvent) {
-    const formElement = event?.currentTarget;
-
-    if (!(formElement instanceof HTMLFormElement)) {
-      return;
-    }
-
-    const formData = new FormData(formElement);
-
+  function submitValidForm(values: CompanyFormValues) {
     React.startTransition(() => {
-      formAction(formData);
+      formAction(companyValuesToFormData(values, company?.id));
     });
   }
 

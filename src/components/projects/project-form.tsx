@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Save } from "lucide-react";
 import { createProjectAction, updateProjectAction } from "@/lib/projects/actions";
+import { projectValuesToFormData } from "@/lib/projects/form-data";
 import {
   projectColorDefault,
   projectFormSchema,
@@ -50,17 +51,9 @@ export function ProjectForm({
     },
   });
 
-  function submitValidForm(_values: ProjectFormValues, event?: React.BaseSyntheticEvent) {
-    const formElement = event?.currentTarget;
-
-    if (!(formElement instanceof HTMLFormElement)) {
-      return;
-    }
-
-    const formData = new FormData(formElement);
-
+  function submitValidForm(values: ProjectFormValues) {
     React.startTransition(() => {
-      formAction(formData);
+      formAction(projectValuesToFormData(values, project?.id));
     });
   }
 

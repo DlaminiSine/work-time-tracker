@@ -15,6 +15,7 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { initialFormActionState } from "@/lib/forms/action-state";
 import { getInitialTimerSelection, getNextProjectSelection, getProjectsForCompany } from "@/lib/timer/selectors";
+import { clockInValuesToFormData } from "@/lib/work-sessions/form-data";
 import { clockInFormSchema, type ClockInFormValues } from "@/lib/work-sessions/validation";
 import { clockInAction } from "@/lib/work-sessions/actions";
 import type { CompanyProjectOption } from "@/lib/timer/options";
@@ -58,15 +59,9 @@ export function ClockInForm({ options }: { options: CompanyProjectOption[] }) {
     form.setValue("projectId", projectId, { shouldDirty: true, shouldValidate: true });
   }
 
-  function submitValidForm(_values: ClockInFormValues, event?: React.BaseSyntheticEvent) {
-    const formElement = event?.currentTarget;
-
-    if (!(formElement instanceof HTMLFormElement)) {
-      return;
-    }
-
+  function submitValidForm(values: ClockInFormValues) {
     React.startTransition(() => {
-      formAction(new FormData(formElement));
+      formAction(clockInValuesToFormData(values));
     });
   }
 
