@@ -156,6 +156,20 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
+Use the Supabase project root URL for `NEXT_PUBLIC_SUPABASE_URL`, not a REST API path. For this project, that root URL is:
+
+```text
+https://fcdytpnxpjdqeyhycixc.supabase.co
+```
+
+Real environment values should be supplied through one of these places:
+
+- Local `.env.local`, which must stay untracked.
+- GitHub Codespaces secrets.
+- Vercel environment variables.
+
+Do not commit real Supabase values to `.env.example` or any other tracked env file.
+
 Run the development server:
 
 ```bash
@@ -167,7 +181,7 @@ Open `http://localhost:3000`.
 ## Supabase Setup
 
 1. Create a Supabase project.
-2. Copy the project URL and anon key into `.env.local`.
+2. Copy the project root URL and anon key into local `.env.local`, GitHub Codespaces secrets, or Vercel environment variables.
 3. Apply the migration in `supabase/migrations/20260905010000_phase_1_schema.sql`.
 4. In Supabase Auth settings, configure the local redirect URL:
 
